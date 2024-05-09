@@ -120,11 +120,15 @@ class PageJumperDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController();
+    final initialText = '$currentPage';
+    final controller = TextEditingController()
+      ..text = initialText
+      ..selection =
+          TextSelection(baseOffset: 0, extentOffset: initialText.length);
     return AlertDialog(
       title: const Text("Jump to page"),
       content: TextFormField(
-        decoration: InputDecoration(hintText: '$currentPage'),
+        decoration: InputDecoration(hintText: 'Current page: $initialText'),
         controller: controller,
         autofocus: true,
         keyboardType: TextInputType.number,
