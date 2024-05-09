@@ -84,7 +84,7 @@ class _DragonballMultiverseViewerState
           const SizedBox(
             width: 10.0,
           ),
-          TextButton(
+          FloatingActionButton.extended(
             onPressed: () async {
               final jumpPage = await showDialog<int>(
                     context: context,
@@ -94,7 +94,7 @@ class _DragonballMultiverseViewerState
                   _pageIndex;
               _setPage(jumpPage);
             },
-            child: Text(
+            label: Text(
               '$_pageIndex',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
@@ -183,13 +183,18 @@ class _SinglePageViewState extends State<SinglePageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: FutureBuilder<String>(
-        future: _dragonballMultiverseImageUrl(widget.url),
-        builder: (context, snapshot) => Column(
+    return FutureBuilder<String>(
+      future: _dragonballMultiverseImageUrl(widget.url),
+      builder: (context, snapshot) => Expanded(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (snapshot.hasData) Image.network(snapshot.data!),
+            if (snapshot.hasData)
+              Image.network(
+                snapshot.data!,
+                width: MediaQuery.of(context).size.width * 0.5 - 5,
+                fit: BoxFit.fitWidth,
+              ),
             UrlLink(
               displayText: "Visit page",
               url: widget.url,
