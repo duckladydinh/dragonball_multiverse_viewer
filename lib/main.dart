@@ -134,7 +134,7 @@ class PageJumperDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context, 'Cancel'),
+          onPressed: () => Navigator.pop(context, currentPage),
           child: const Text('Cancel'),
         ),
         TextButton(
