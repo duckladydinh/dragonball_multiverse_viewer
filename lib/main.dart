@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
-const String kDragonballMultiverseHomeUrl =
-    'https://www.dragonball-multiverse.com';
+const kDragonballMultiverseHomeUrl = 'https://www.dragonball-multiverse.com';
 
 void main() {
-  runApp(
-      const DragonballMultiverseViewer(title: 'Dragonball Multiverse Viewer'));
+  const title = 'Dragonball Multiverse Viewer';
+  runApp(MaterialApp(
+    title: title,
+    theme: ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+      useMaterial3: true,
+    ),
+    home: const DragonballMultiverseViewer(title: title),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 /// A view of a Dragonball Multiverse page that renders in 2 different language at the same time.
@@ -26,16 +34,24 @@ class _DragonballMultiverseViewerState
     extends State<DragonballMultiverseViewer> {
   int _pageIndex = 0;
 
-  void _incrementCounter() {
+  void _incrementPage() {
     setState(() {
       _pageIndex++;
     });
   }
 
-  void _decrementCounter() {
+  void _decrementPage() {
     setState(() {
       if (_pageIndex > 0) {
         _pageIndex--;
+      }
+    });
+  }
+
+  void _setPage(int page) {
+    setState(() {
+      if (page != _pageIndex) {
+        _pageIndex = page;
       }
     });
   }
@@ -46,52 +62,89 @@ class _DragonballMultiverseViewerState
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: widget.title,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-        ),
-        body: SingleChildScrollView(
-          child: Center(
-            child: Row(
-              children: [
-                SinglePageView(url: _dragonballMultiversePageUrl("de")),
-                SinglePageView(url: _dragonballMultiversePageUrl("en")),
-              ],
-            ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Row(
+            children: [
+              SinglePageView(url: _dragonballMultiversePageUrl("de")),
+              SinglePageView(url: _dragonballMultiversePageUrl("en")),
+            ],
           ),
         ),
-        floatingActionButton: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FloatingActionButton(
-              onPressed: _decrementCounter,
-              child: const Icon(Icons.arrow_left),
-            ),
-            const SizedBox(
-              width: 10.0,
-            ),
-            Text(
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            onPressed: _decrementPage,
+            child: const Icon(Icons.arrow_left),
+          ),
+          const SizedBox(
+            width: 10.0,
+          ),
+          TextButton(
+            onPressed: () async {
+              final jumpPage = await showDialog<int>(
+                    context: context,
+                    builder: (context) =>
+                        PageJumperDialog(currentPage: _pageIndex),
+                  ) ??
+                  _pageIndex;
+              _setPage(jumpPage);
+            },
+            child: Text(
               '$_pageIndex',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const SizedBox(
-              width: 10.0,
-            ),
-            FloatingActionButton(
-              onPressed: _incrementCounter,
-              child: const Icon(Icons.arrow_right),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(
+            width: 10.0,
+          ),
+          FloatingActionButton(
+            onPressed: _incrementPage,
+            child: const Icon(Icons.arrow_right),
+          ),
+        ],
       ),
-      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+/// A page jumper dialog that returns the page number to jump.
+class PageJumperDialog extends StatelessWidget {
+  const PageJumperDialog({super.key, required this.currentPage});
+
+  final int currentPage;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = TextEditingController();
+    return AlertDialog(
+      title: const Text("Jump to page"),
+      content: TextFormField(
+        decoration: InputDecoration(hintText: '$currentPage'),
+        controller: controller,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        onEditingComplete: () =>
+            Navigator.pop(context, int.parse(controller.text)),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, 'Cancel'),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, int.parse(controller.text)),
+          child: const Text('OK'),
+        ),
+      ],
     );
   }
 }
@@ -130,22 +183,18 @@ class _SinglePageViewState extends State<SinglePageView> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FutureBuilder<String>(
-            future: _dragonballMultiverseImageUrl(widget.url),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Image.network(snapshot.data!);
-              }
-              return UrlLink(
-                displayText: "Visit page",
-                url: widget.url,
-              );
-            },
-          ),
-        ],
+      child: FutureBuilder<String>(
+        future: _dragonballMultiverseImageUrl(widget.url),
+        builder: (context, snapshot) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (snapshot.hasData) Image.network(snapshot.data!),
+            UrlLink(
+              displayText: "Visit page",
+              url: widget.url,
+            ),
+          ],
+        ),
       ),
     );
   }
