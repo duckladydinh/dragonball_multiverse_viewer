@@ -10,10 +10,7 @@ void main() {
   const title = 'Dragonball Multiverse Viewer';
   runApp(MaterialApp(
     title: title,
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-      useMaterial3: true,
-    ),
+    theme: ThemeData.dark(useMaterial3: true),
     home: const DragonballMultiverseViewer(title: title),
     debugShowCheckedModeBanner: false,
   ));
