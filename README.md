@@ -1,16 +1,9 @@
-# dragonball_multiverse_viewer
+# Dragonball Multiverse Viewer
 
-A new Flutter project.
+Dragonball Multiverse is a manga fan fiction available in multiple language. As I want to learn German, I think it would be a good idea to be able to view the same page in 2 different language (German and English) side by side. Therefore, I created this app to boost up my German learning.
 
-## Getting Started
+## Run locally
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+$ flutter run -d chrome --web-browser-flag "--disable-web-security"
+```
