@@ -77,9 +77,9 @@ class _DragonballMultiverseViewerState
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          FloatingActionButton(
-            onPressed: _decrementPage,
-            child: const Icon(Icons.arrow_left),
+          ScrollThroughButton(
+            onTap: _decrementPage,
+            icon: Icons.arrow_left,
           ),
           const SizedBox(
             width: 10.0,
@@ -102,11 +102,34 @@ class _DragonballMultiverseViewerState
           const SizedBox(
             width: 10.0,
           ),
-          FloatingActionButton(
-            onPressed: _incrementPage,
-            child: const Icon(Icons.arrow_right),
+          ScrollThroughButton(
+            onTap: _incrementPage,
+            icon: Icons.arrow_right,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A button that is transparent to scroll events but still cliclable.
+class ScrollThroughButton extends StatelessWidget {
+  const ScrollThroughButton(
+      {super.key, required this.onTap, required this.icon});
+
+  final Function() onTap;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onTap,
+      child: IgnorePointer(
+        child: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(icon),
+        ),
       ),
     );
   }
